@@ -37,9 +37,9 @@ def Winker(diameter=32,L0Min=16,L0Max=8000,numL0=20,numIter=100, prefix="winker"
            nfftOuter=256,nfftInner=256):
     args=locals()
     L0s=np.logspace(np.log10(L0Min),np.log10(L0Max),numL0)
-    variance=np.array([NollTest(MegaScreen(r0=float(diameter),L0=L0,
-                                           nfftInner=nfftInner,nfftOuter=nfftOuter,
-                                           windowShape=[diameter,diameter],dx=diameter),
+    variance=np.array([NollTest(MegaScreen(r0=float(diameter), L0=L0,
+                                           nfftWoofer=nfftInner, nfftTweeter=nfftOuter,
+                                           windowShape=[diameter,diameter], dx=diameter),
                        diameter,numIter,maxRadial=maxRadial) for L0 in L0s]).transpose()
     t=Table([L0s]+list(variance),names=["L0"]+["Z"+str(i) for i in range(len(variance))])
     SaveTable(t,prefix,args)

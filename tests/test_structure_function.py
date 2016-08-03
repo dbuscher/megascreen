@@ -39,10 +39,11 @@ def screen_sf_xy(generator, decimate, numScreen):
     return np.mean(sf, axis=0)
 
 
-def multiscreen_sf(r0=10, L0=10000, diameter=128, frequencyOverlap=2.0, decimate=10, numScreen=100,
+def multiscreen_sf(r0=10, L0=10000, diameter=128, frequencyOverlap=4.0, fractionalSupport=1.0, decimate=10, numScreen=100,
                    prefix="multi"):
     args=locals()
-    generator=MegaScreen(r0, L0, [diameter, diameter], dx=diameter, frequencyOverlap=frequencyOverlap,
+    generator=MegaScreen(r0, L0, [diameter, diameter], dx=diameter,
+                         frequencyOverlap=frequencyOverlap, fractionalSupport=fractionalSupport,
                          debug=True)
     sf = []
     for i in range(numScreen):
@@ -140,6 +141,6 @@ def plot_table(t):
 # Generic command-line interface to run test function or give full control
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        multiscreen_sf(numScreen=40000)
+        multiscreen_sf(numScreen=10000)
     else:
         exec(sys.argv[1])

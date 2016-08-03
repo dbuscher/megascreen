@@ -36,7 +36,7 @@ def interf_spectrum(r0=5,L0=3000,baseline=250,step=32,numScreen=160000,nperseg=6
     args=locals()
     args["MegaScreenVersion"]=ms.__version__
     g=MegaScreen(r0, L0, windowShape=[step, 2], windowOrigins=[(0.0,0.0), (0.0, baseline)],
-                 dx=step, frequencyOverlap=freqOverlap,nfftInner=nfftInner,nfftOuter=nfftOuter)
+                 dx=step, frequencyOverlap=freqOverlap, nfftWoofer=nfftInner, nfftTweeter=nfftOuter)
     phase=np.concatenate([next(g) for i in range(numScreen)],axis=1)
     phase=phase[:,:,0]
     diff=phase[1]-phase[0]
@@ -64,9 +64,9 @@ def component_spectrum(r0=10,L0=2000,step=32,numScreen=40000,which=2,nperseg=163
                        prefix="component_spec",plot=True):
     args=locals()
     args["MegaScreenVersion"]=ms.__version__
-    g=MegaScreen(r0, L0, windowShape=[step, 2],dx=step,
+    g=MegaScreen(r0, L0, windowShape=[step, 2], dx=step,
                  debug=True,
-                 frequencyOverlap=freqOverlap,nfftInner=nfftInner,nfftOuter=nfftOuter,
+                 frequencyOverlap=freqOverlap, nfftWoofer=nfftInner, nfftTweeter=nfftOuter,
                  fractionalSupport=fractionalSupport)
     phase=np.concatenate([next(g)[which][:,0] for i in range(numScreen)])
     results=Table(scipy.signal.welch(phase,nperseg=nperseg),names=["frequency","power"])

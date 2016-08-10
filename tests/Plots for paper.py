@@ -290,7 +290,7 @@ matplotlib.rcParams['text.usetex'] = True
 plt.savefig("winker.eps",bbox_inches="tight")
 
 
-# In[ ]:
+# In[7]:
 
 def sf_plot(f1,f2):
     fig1 = plt.figure(figsize=(3,3))
@@ -322,14 +322,14 @@ def sf_plot(f1,f2):
     ax=plt.gca()
     ax.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-sf_plot("tmp/multi160731-1549.dat","tmp/mcglamery160731-1215.dat")
+sf_plot("tmp/multi160809-1657.dat","tmp/mcglamery160731-1215.dat")
 matplotlib.rcParams['text.usetex'] = True
-plt.savefig("structure_fn.pdf",bbox_inches="tight")
+plt.savefig("structure_fn.png",bbox_inches="tight")
 
 
-# In[ ]:
+# In[6]:
 
-t=Table.read("tmp/multi160731-1013.dat",format="ascii.ecsv")
+t=Table.read("tmp/multi160809-1657.dat",format="ascii.ecsv")
 plt.semilogx(t["r"],t["sf_x2"]/t["model"])
 plt.semilogx(t["r"],t["sf_y2"]/t["model"])
 

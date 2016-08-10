@@ -1,5 +1,6 @@
 import numpy as np
 from MegaScreen import *
+import MegaScreen as ms
 from scipy import signal, special
 import matplotlib.pyplot as plt
 import sys
@@ -39,11 +40,16 @@ def screen_sf_xy(generator, decimate, numScreen):
     return np.mean(sf, axis=0)
 
 
-def multiscreen_sf(r0=10, L0=10000, diameter=128, frequencyOverlap=4.0, fractionalSupport=1.0, decimate=10, numScreen=100,
+def multiscreen_sf(r0=5, L0=10000, diameter=128,
+                   decimate=20, numScreen=10000,
+                   frequencyOverlap=4.0, fractionalSupport=1.0,
+                   nfftWoofer=512,nfftTweeter=256,
                    prefix="multi"):
     args=locals()
+    args["MegaScreenVersion"] = ms.__version__
     generator=MegaScreen(r0, L0, [diameter, diameter], dx=diameter,
-                         frequencyOverlap=frequencyOverlap, fractionalSupport=fractionalSupport,
+                         frequencyOverlap=frequencyOverlap,fractionalSupport=fractionalSupport,
+                         nfftWoofer=nfftWoofer,nfftTweeter=nfftTweeter,
                          debug=True)
     sf = []
     for i in range(numScreen):
@@ -51,7 +57,8 @@ def multiscreen_sf(r0=10, L0=10000, diameter=128, frequencyOverlap=4.0, fraction
         sf.append([average_sf_xy(screens[i], decimate) for i in range(3)])
     results = np.mean(sf, axis=0)
     r=np.arange(results.shape[2]) + 1
-    t=Table({"r": r})
+    model = sf_integrated(r, r0=r0, L0=L0)
+    t=Table({"r": r, "model": model})
     for i in range(3):
         sf_x, sf_y = results[i]
         t["sf_x"+str(i)]=sf_x
@@ -64,20 +71,19 @@ def multiscreen_sf(r0=10, L0=10000, diameter=128, frequencyOverlap=4.0, fraction
     for i in range(3):
         plt.subplot(1, 3, i + 1)
         sf_x, sf_y = results[i]
-        r = np.arange(len(sf_x)) + 1
-        model = sf_integrated(r,r0=r0,L0=L0)
         plt.loglog(r, sf_x)
         plt.loglog(r, sf_y)
         plt.loglog(r, model)
     plt.show()
 
 
-def test_mcglamery(r0=10, L0=10000, diameter=128, nfft=1024, decimate=10, numScreen=4000):
+def mcglamery_sf(r0=5, L0=10000, diameter=200, nfft=1024, decimate=20, numScreen=4000):
     args=locals()
+    args["MegaScreenVersion"] = ms.__version__
     generator=CookieCutterSubScreens(McGlameryScreen(r0, L0, nfft),diameter,diameter)
-    sf_test(generator, r0=r0, L0=L0,
-            decimate=decimate, numScreen=numScreen,args=args,prefix="mcglamery")
-
+    t=sf_test(generator, r0=r0, L0=L0,
+              decimate=decimate, numScreen=numScreen,args=args,prefix="mcglamery")
+    plot_table(t)
 
 def test2(r0=10, L0=2000, diameter=128, decimate=10, numScreen=1000):
     sf_test(SingleGenerator(r0, L0, diameter, dx=diameter, which=1), decimate=decimate, numScreen=numScreen)
@@ -121,16 +127,17 @@ def sf_test(generator, r0, L0, decimate=10, numScreen=4000,args={},prefix="tmp")
     sf_x, sf_y = screen_sf_xy(generator, decimate, numScreen)
     r=np.arange(len(sf_x))+1
     model=sf_integrated(r,r0,L0)
-    results = Table([r, sf_x, sf_y, model], names=["r","sf_x", "sf_y","model"])
+    results = Table([r, model, sf_x, sf_y], names=["r","model", "sf_x", "sf_y"])
     for key in sorted(args):
         results.meta[key]=args[key]
     results.write(time.strftime("tmp/"+prefix+"%y%m%d-%H%M.dat"),
                 format='ascii.ecsv')
+    return results
 
 def plot_table(t):
     r=t["r"]
     sf_x=t["sf_x"]
-    sf_x=t["sf_y"]
+    sf_y=t["sf_y"]
     model=t["model"]
     plt.loglog(r,sf_x)
     plt.loglog(r,sf_y)
@@ -141,6 +148,6 @@ def plot_table(t):
 # Generic command-line interface to run test function or give full control
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        multiscreen_sf(numScreen=10000)
+        multiscreen_sf()
     else:
         exec(sys.argv[1])

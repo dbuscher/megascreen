@@ -19,17 +19,23 @@ matplotlib.rcParams['savefig.dpi'] = 200
 matplotlib.rcParams['text.usetex'] = False
 
 
-# In[8]:
+# In[13]:
 
 def PlotSf3(filename):
     t=Table.read(filename,format="ascii.ecsv")
     plt.figure(figsize=(9, 3))
     r=t["r"]
-    for i in range(3):
+    for i,title in enumerate(["Woofer","Tweeter","Sum"]):
         plt.subplot(1, 3, i + 1)
-        plt.loglog(r, t["sf_x"+str(i)])
-        plt.loglog(r, t["sf_y"+str(i)])
-        plt.loglog(r, t["model"])
+        plt.loglog(r, t["sf_x"+str(i)],label="x")
+        plt.loglog(r, t["sf_y"+str(i)],label="y")
+        plt.loglog(r, t["model"],label="model")
+        if i==0: 
+            plt.ylabel(r"$D_\phi(r)$")
+            plt.legend(loc="lower right")
+        plt.xlabel(r"$r$")
+        plt.title(title)
+        plt.ylim(2e-1,2e3)
 PlotSf3("data/multi160809-1657.dat")
 plt.savefig("component_sf.svg")
 plt.savefig("component_sf.png")

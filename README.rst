@@ -5,4 +5,4 @@ This Python 3 module implements the algorithm described in a paper recently subm
 
 The result can be seen in the figure below, where the structure function of the individual screens is compared to the theoretical structure function, and their sum is shown on the right. The sum clearly matches theoretical predictions to a high degree of accuracy.
 
-.. image:: tests/structure_fn.svg
+.. image:: tests/component_sf.svg

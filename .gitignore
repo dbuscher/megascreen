@@ -20,6 +20,7 @@ build
 .noseids
 .tox
 .*.sw[nop]
+.idea/
 
 tmp/
 .ipynb_checkpoints/

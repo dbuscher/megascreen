@@ -19,7 +19,7 @@ matplotlib.rcParams['savefig.dpi'] = 200
 matplotlib.rcParams['text.usetex'] = False
 
 
-# In[4]:
+# In[8]:
 
 def PlotSf3(filename):
     t=Table.read(filename,format="ascii.ecsv")
@@ -32,6 +32,7 @@ def PlotSf3(filename):
         plt.loglog(r, t["model"])
 PlotSf3("data/multi160809-1657.dat")
 plt.savefig("component_sf.svg")
+plt.savefig("component_sf.png")
 
 
 # In[6]:

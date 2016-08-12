@@ -6,7 +6,25 @@ import sys
 from astropy.table import Table
 import time
 import MegaScreen as ms
-from MegaScreen import MegaScreen,McGlameryScreen
+
+def interf_spectrum_quad(baseline, frequencies, r0, L0, eps1=1.0):
+    return np.array([8 * (scipy.integrate.quad(lambda u, f, b, r0, L0:
+                                    ms.VonKarmanSpectrum(np.sqrt(u**2+f**2), r0, L0) *
+                                    (1.0 - np.cos(2 * np.pi * u * b)),
+                                    0, eps1/baseline, args=(f, baseline, r0, L0), epsrel=1e-3,
+                                    limit=400)[0]
+                        + scipy.integrate.quad(lambda u, f, b, r0, L0:
+                                    ms.VonKarmanSpectrum(np.sqrt(u**2+f**2), r0, L0),
+                                    eps1/baseline, np.inf, args=(f, baseline, r0, L0), epsrel=1e-4,
+                                    limit=100)[0]
+                          -scipy.integrate.quad(lambda u, f, b, r0, L0:
+                                    ms.VonKarmanSpectrum(np.sqrt(u**2+f**2), r0, L0),
+                                    eps1/baseline, np.inf, args=(f, baseline, r0, L0), epsrel=1e-4,
+                                    weight='cos',wvar=2*np.pi*baseline,
+                                    limit=100)[0])
+
+            for f in frequencies])
+
 
 def SaveTable(results,prefix,args):
     for key in sorted(args):
@@ -35,7 +53,7 @@ def interf_spectrum(r0=5,L0=3000,baseline=250,step=32,numScreen=160000,nperseg=6
                     prefix="interf_spec",plot=True,plotPhases=False):
     args=locals()
     args["MegaScreenVersion"]=ms.__version__
-    g=MegaScreen(r0, L0, windowShape=[step, 2], windowOrigins=[(0.0,0.0), (0.0, baseline)],
+    g=ms.MegaScreen(r0, L0, windowShape=[step, 2], windowOrigins=[(0.0,0.0), (0.0, baseline)],
                  dx=step, frequencyOverlap=freqOverlap, nfftWoofer=nfftInner, nfftTweeter=nfftOuter)
     phase=np.concatenate([next(g) for i in range(numScreen)],axis=1)
     phase=phase[:,:,0]
@@ -64,7 +82,7 @@ def component_spectrum(r0=10,L0=2000,step=32,numScreen=40000,which=2,nperseg=163
                        prefix="component_spec",plot=True):
     args=locals()
     args["MegaScreenVersion"]=ms.__version__
-    g=MegaScreen(r0, L0, windowShape=[step, 2], dx=step,
+    g=ms.MegaScreen(r0, L0, windowShape=[step, 2], dx=step,
                  debug=True,
                  frequencyOverlap=freqOverlap, nfftWoofer=nfftInner, nfftTweeter=nfftOuter,
                  fractionalSupport=fractionalSupport)

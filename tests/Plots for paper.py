@@ -3,6 +3,7 @@
 
 # In[1]:
 
+
 from astropy.table import Table
 import matplotlib.pyplot as plt
 import matplotlib
@@ -14,12 +15,13 @@ from test_spectrum import interf_spectrum_quad as interf_spectrum
 import functools
 from MegaScreen import VonKarmanSpectrum, NestedSpectra
 
-get_ipython().magic('matplotlib inline')
+get_ipython().run_line_magic('matplotlib', 'inline')
 matplotlib.rcParams['savefig.dpi'] = 200
 matplotlib.rcParams['text.usetex'] = False
 
 
 # In[2]:
+
 
 def spectrum(f):
     return (f**2+0.1**2)**(-8/3)
@@ -50,7 +52,8 @@ matplotlib.rcParams['text.usetex'] = False
 plt.savefig("tweetwoof.eps",bbox_inches="tight")
 
 
-# In[3]:
+# In[5]:
+
 
 def CosHat(x,w=1):
     y=np.cos(np.pi*x/(w))
@@ -105,22 +108,24 @@ plt.figure(figsize=(3,3))
 plt.plot(x,y)
 plt.xlim(-1.2,1.2)
 plt.ylim(-1.2,1.2)
-plt.xticks([])
-plt.yticks([])
+plt.xticks([-0.5,0.5],["$-w/2$","$w/2$"])
+plt.yticks([0])
 ax = plt.gca()  # gca stands for 'get current axis'
 ax.spines['right'].set_color('none')
 ax.spines['top'].set_color('none')
 ax.xaxis.set_ticks_position('bottom')
-ax.spines['bottom'].set_position(('data',0))
+#ax.spines['bottom'].set_position(('data',0))
 ax.yaxis.set_ticks_position('left')
-ax.spines['left'].set_position(('data',0))
+#ax.spines['left'].set_position(('data',0))
 matplotlib.rcParams['text.usetex'] = True
 plt.savefig("packet.eps",bbox_inches="tight")
 
 
-# In[4]:
+# In[7]:
+
 
 plt.figure(figsize=(3,3))
+plt.style.use("grayscale")
 p=AmplitudeSpectrum(y)**2
 plt.plot(f,p)
 plt.xlim(-1,10)
@@ -139,14 +144,16 @@ plt.tick_params(
 plt.savefig("one_peak.eps",bbox_inches="tight")
 
 
-# In[5]:
+# In[10]:
+
 
 plt.figure(figsize=(3,3))
+plt.style.use("grayscale")
 spectra=np.array([AmplitudeSpectrum(packet(x,f0))**2 for f0 in [5,6,7,8,9]])
 for spectrum in spectra:
     plt.plot(f,spectrum)
 plt.xlim(3,11)
-plt.plot(f,np.sum(spectra,axis=0))
+plt.plot(f,np.sum(spectra,axis=0),lw=2)
 plt.yticks([])
 plt.xticks([5,6,7,8,9],[r"","",r"$f_0$","",""])
 ax=plt.gca()
@@ -163,7 +170,8 @@ plt.tick_params(
 plt.savefig("smoothpeaks.eps",bbox_inches="tight")
 
 
-# In[6]:
+# In[2]:
+
 
 def logbin(x,y,unitbin):
     """
@@ -195,20 +203,25 @@ def PlotSpectrum(filename,unitbin=2e-3):
     plt.loglog(x*r0,y)
     return i
 
-def PlotTheoretical(meta,fmin=1e-5,fmax=1,numpoint=100):
+def PlotTheoretical(filename,fmin=1e-5,fmax=1,numpoint=100):
     f=np.logspace(np.log10(fmin),np.log10(fmax),numpoint)
+    meta=Table.read(filename,format="ascii.ecsv").meta
     baseline=meta["baseline"]
     r0=meta["r0"]
     L0=meta["L0"]
-    plt.plot(f*r0,1.2*interf_spectrum(baseline,f,r0=r0,L0=L0),ls="dotted")
+    plt.plot(f*r0,interf_spectrum(baseline,f,r0=r0,L0=L0),lw=3.5,color="0.75")
 
 
 
 plt.figure(figsize=(3,3))
-PlotTheoretical(PlotSpectrum("data/interf_spec160731-1225.dat",unitbin=2e-3).meta)
-PlotTheoretical(PlotSpectrum("data/interf_spec160731-1204.dat",unitbin=2e-3).meta)
+plt.style.use("default")
+matplotlib.rcParams['savefig.dpi'] = 200
+PlotTheoretical("data/interf_spec160731-1225.dat")
+PlotTheoretical("data/interf_spec160731-1204.dat")
+PlotSpectrum("data/interf_spec160731-1225.dat",unitbin=2e-3)
+PlotSpectrum("data/interf_spec160731-1204.dat",unitbin=2e-3)
 plt.ylabel(r"$\Phi(f)$")
-plt.xlabel("$r_0f$")
+plt.xlabel("$r_0f/V$")
 plt.ylim(1e-1,6e7)
 plt.xlim(5e-5,4)
 plt.yticks([1e0,1e2,1e4,1e6])
@@ -246,7 +259,8 @@ matplotlib.rcParams['text.usetex'] = True
 plt.savefig("interf_spectrum.eps",bbox_inches="tight")
 
 
-# In[7]:
+# In[3]:
+
 
 def PlotWinker(filename,fmin=1e-3,fmax=1e0):
     t=Table.read(filename,format="ascii.ecsv")
@@ -281,9 +295,4 @@ plt.tick_params(
 #plt.legend()
 matplotlib.rcParams['text.usetex'] = True
 plt.savefig("winker.eps",bbox_inches="tight")
-
-
-# In[ ]:
-
-
 

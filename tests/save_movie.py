@@ -1,9 +1,3 @@
-
-# coding: utf-8
-
-# In[4]:
-
-get_ipython().magic('matplotlib inline')
 from matplotlib import animation, rc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,27 +23,8 @@ def updatefig(i,im,screenGenerator):
     im.autoscale()
     return im,
 
-rc('animation', html='html5')
-
 # Set up formatting for the movie files
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
-
 anim=test()
-print()
-
-
-# In[5]:
-
 anim.save('phase_screen.mp4', writer=writer)
-
-
-# In[ ]:
-
-a
-
-
-# In[ ]:
-
-
-

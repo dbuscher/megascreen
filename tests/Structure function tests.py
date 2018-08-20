@@ -3,6 +3,7 @@
 
 # In[1]:
 
+
 from astropy.table import Table
 import matplotlib.pyplot as plt
 import matplotlib
@@ -14,12 +15,13 @@ from test_spectrum import interf_spectrum_quad as interf_spectrum
 import functools
 from MegaScreen import VonKarmanSpectrum, NestedSpectra
 
-get_ipython().magic('matplotlib inline')
+get_ipython().run_line_magic('matplotlib', 'inline')
 matplotlib.rcParams['savefig.dpi'] = 200
 matplotlib.rcParams['text.usetex'] = False
 
 
 # In[13]:
+
 
 def PlotSf3(filename):
     t=Table.read(filename,format="ascii.ecsv")
@@ -42,6 +44,7 @@ plt.savefig("component_sf.png")
 
 
 # In[6]:
+
 
 def sf_plot(f1,f2):
     fig1 = plt.figure(figsize=(3,3))
@@ -80,12 +83,8 @@ plt.savefig("structure_fn.svg",bbox_inches="tight")
 
 # In[7]:
 
+
 t=Table.read("data/multi160809-1657.dat",format="ascii.ecsv")
 plt.semilogx(t["r"],t["sf_x2"]/t["model"])
 plt.semilogx(t["r"],t["sf_y2"]/t["model"])
-
-
-# In[ ]:
-
-
 

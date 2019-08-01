@@ -117,7 +117,7 @@ def PixelCoords(origin, shape, pixelSize=1, theta=0):
     """
     c = np.cos(theta)
     s = np.sin(theta)
-    print(origin, shape, pixelSize)
+    #print(origin, shape, pixelSize)
     x = (origin[0] + np.arange(shape[0])) * pixelSize
     y = (origin[1] + np.arange(shape[1])) * pixelSize
     return np.add.outer(c * x, s * y).flatten(), \

@@ -26,12 +26,13 @@ def jtonm(j):
 
 @functools.lru_cache()
 def ZernikeGrid(gridSize, maxRadial, diameter=None, orthoganalise=True):
-    """Return all the Zernike polynomials up to a given radial order on a square grid
+    """Return Zernike polynomials sampled on a square grid.
 
+    Returns all the polynomials for radial orders up to and including maxRadial.
     If diameter is None, then the unit circle just touches the outer edges of the 
     square (with the convention that the square extends +-0.5 pixels beyond the grid).
     Uses a recursive method to evaluate the radial polynomial.
-    Returns the polynomials in the order given by Noll (1976), but zero-based
+    Returns the polynomials in the order given by Noll (1976), but zero-based.
     """
     if diameter == None:
         diameter = gridSize

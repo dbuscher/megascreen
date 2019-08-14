@@ -21,6 +21,7 @@ build
 .tox
 .*.sw[nop]
 .idea/
+cache/
 
 tmp/
 .ipynb_checkpoints/
@@ -47,3 +48,6 @@ lib/
 lib64/
 parts/
 sdist/
+
+# Sphinx
+docs/_build/

@@ -4,8 +4,8 @@ Includes tests against the Noll (1976) results for the residual variance
 of a wavefront with various orders of Zernike removal. 
 """
 import numpy as np
-from pois import ZernikeGrid
 from MegaScreen import *
+from MegaScreen.Zernike import ZernikeGrid
 import MegaScreen as ms
 from astropy.table import Table
 import time
@@ -82,12 +82,13 @@ def Winker(
     L0Max=8000,
     numL0=20,
     numIter=100,
-    prefix="winker",
     maxRadial=2,
     nfftOuter=256,
     nfftInner=256,
+    randomSeed=12345,
 ):
-    args = locals()
+    """Derive simulated data corresponding to Figure 2 of Winker 1991"""
+
     L0s = np.logspace(np.log10(L0Min), np.log10(L0Max), numL0)
     variance = np.array(
         [
@@ -111,7 +112,7 @@ def Winker(
         [L0s] + list(variance),
         names=["L0"] + ["Z" + str(i) for i in range(len(variance))],
     )
-    SaveTable(t, prefix, args)
+    return t
 
 
 def NollTest(generator, diameter, numIter, maxRadial=5):

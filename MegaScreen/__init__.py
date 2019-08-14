@@ -83,7 +83,7 @@ def SlidingPixels(tileGenerator, x, y, dx):
     x,y: 1D arrays
         starting pixel coordinates in units of the tile grid size
     dx: float
-        increment of pixel `x` coordinate on each iteration
+        increment of pixel "x" coordinate on each iteration
     Yields
     -------
     1D array
@@ -176,34 +176,16 @@ def NestedSpectra(spectrum, f0, eps=1e-6):
 def NestedScreen(spectrum, windowShape, dx,
                  windowOrigins=((0.0, 0.0),), pixelSize=1.0, theta=0.0,
                  nfftWoofer=256, nfftTweeter=256, frequencyOverlap=4.0, fractionalSupport=0.5,
-                 debug=False):
-    """Generate a sequence of phase screens using nested FFTs
+                 debug=False,numIter=None):
+    """Generate a sequence of phase screens for an arbitrary spectrum
 
     Parameters
     ----------
-    spectrum: function
-       Returns the spectral power of the phase perturbations at a given frequency
-    windowShape: pair of ints
-       Shape in pixels of rectangular windows
-    windowOrigins: sequence of pairs of floats
-        The origins of each of the rectangular windows
-    pixelSize : float
-       The size of the output pixels in terms of the pixel size of
-       the tweeter screen
-    theta: float
-        Rotation of the window coordinate system wrt the x axis, to allow different
-        'wind' directions
-    dx : float
-       Increment in the x coordinate of all windows between subsequent calls,
-       in units of the outer spectrum grid size
-    nfftWoofer, nfftTweeter: float
-        Size of the square FFTs used to produce the woofer and tweeter
-        screens
-    frequencyOverlap : float
-       The Nyquist frequency of the woofer spectrum in units of the fundamental
-       frequency of the tweeter spectrum
-    fractionalSupport : float
-        Fraction of Nyquist frequency over which woofer spectrum is non-zero
+    spectrum: Callable[[numpy.ndarray[float]],numpy.ndarray[float]]
+       Returns the spectral power density of the phase perturbations at a given frequency
+    Notes
+    -----
+    See MegaScreen() for the other parameters
     """
     wooferPixelSize = nfftTweeter / (2 * frequencyOverlap)
     f0 = 1 / (2 * wooferPixelSize) * fractionalSupport
@@ -216,7 +198,9 @@ def NestedScreen(spectrum, windowShape, dx,
                                    shape=windowShape, origins=[origin],
                                    pixelSize=pixelSize, theta=theta)
                     for origin in windowOrigins]
-    while 1:
+    iter=0
+    while numIter is None or iter < numIter:
+        iter+=1
         inner = next(innerWindows)
         outer = np.squeeze(np.array([next(o) for o in outerWindows]))
         if debug:
@@ -225,24 +209,64 @@ def NestedScreen(spectrum, windowShape, dx,
             yield inner + outer
 
 
-def MegaScreen(r0, L0, windowShape, dx,
+def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
                windowOrigins=((0.0, 0.0),), pixelSize=1.0, theta=0.0,
                nfftWoofer=256, nfftTweeter=256,
                frequencyOverlap=4.0, fractionalSupport=1.0,
-               debug=False):
+               debug=False,numIter=None):
     """
+    Generate a sequence of phase screens for a Von Karman spectrum turbulent spectrum
 
     Parameters
     ----------
-    r0 : Fried parameter for phase screen
-    L0 : Outer scale of turbulence
 
-    Other Parameters and Return value: as for NestedScreen()
+    r0 : float
+         Fried parameter :math:`r_0` in tweeter pixel units.
+    L0 : float
+         Outer scale of turbulence in tweeter pixel units.
+    windowShape : Tuple[int,int]
+                  Shape of rectangular output window grid (same for all windows).
+    dx : float
+         Increment in the "x" coordinate of the tweeter phase screen between subsequent calls. Represents the "frozen
+         turbulence" windspeed in tweeter pixels/iteration. Should be > 0. See note below about coordinate directions.
+    windowOrigins : Sequence[Tuple[float,float]]
+                    Relative coordinates of the rectangular windows in the window coordinate system - note that this coordinate system is scaled and rotated with respect to the to the coordinate system of the "woofer" and "tweeter" screens, and hence to the "wind" direction. All windows must fit into one "woofer" screen in the woofer screen "y" direction.
+    pixelSize : float
+                The size of the pixels in the output windows in terms of the pixel size of
+                the tweeter screen (typically <= 1.0)
+    theta: float
+           Angle of the output window "x" axis wrt the tweeter screen "x" axis. Used to simulate the 
+           wind travelling in a given direction with respect to the window coordinate axes. See note below about coordinate directions.
+    nfftWoofer, nfftTweeter: float
+                             Size of the square FFTs used to produce the woofer and tweeter
+                             screens.
+    frequencyOverlap : float
+                       The Nyquist frequency of the woofer spectrum in units of the fundamental
+                       frequency of the tweeter spectrum.
+    fractionalSupport : float
+                        Frequency above which woofer spectrum is zero (the "crossover frequency"), expressed as a fraction of the woofer 
+                        Nyquist frequency.
+    debug : boolean
+            If true, yield additional debugging information along with phase screens
+    numIter : Optional[int]
+            Number of iterations to stop after, None means continue indefinitely.
 
+    Yields
+    ------
+
+    screen  : numpy.ndarray[float]
+              Wavefront perturbation at each pixel in each of the output windows, in radians. If there
+              is only one window this is a 2-D array, otherwise an array of 2-D arrays (i.e. a 3-D array)
+              is returned.
+
+    Notes
+    -----
+    The convention used in the above descriptions has the "x" coordinate corresponding to the leftmost
+    index of the 2-D phase screen arrays. This is a FORTRAN-like convention, and when the phase screen is plotted in `matplotlib.imshow()` and similar image plotting functions, this coordinate appears as the "y" coordinate in the image (albeit by default the "y" coordinate is plotted increasing downwards).
     """
     spectrum = functools.partial(VonKarmanSpectrum, r0=r0, L0=L0)
     return NestedScreen(spectrum, windowShape, dx,
                         windowOrigins=windowOrigins, pixelSize=pixelSize, theta=theta,
                         nfftWoofer=nfftWoofer, nfftTweeter=nfftTweeter,
                         frequencyOverlap=frequencyOverlap, fractionalSupport=fractionalSupport,
-                        debug=debug)
+                        debug=debug,numIter=numIter)

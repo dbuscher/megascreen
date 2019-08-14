@@ -171,8 +171,8 @@ def Orthoganalise(Zernikes):
     colZernikes = np.transpose(np.reshape(Zernikes, (len(Zernikes), -1)))
     q, r = np.linalg.qr(colZernikes, mode="reduced")
     orthoZernikes = np.reshape(np.transpose(q), Zernikes.shape)
-    zernikeNorm = np.sqrt(np.sum(r ** 2, axis=0)) * np.sign(np.diag(r))
-    orthoZernikes *= zernikeNorm[:, None, None]
+    zernikeNorm = r[0,0]
+    orthoZernikes *= zernikeNorm
     return orthoZernikes
 
 
@@ -185,24 +185,3 @@ def test_vs_hardcoded(gridSize=100, maxRadial=5):
     print(np.amax(rms))
 
 
-def test_ortho(gridSize=32, maxRadial=5):
-    Z = ZernikeGrid(gridSize, maxRadial)
-    orth, q, r = Orthoganalise(Z, debug=True)
-    print(q.shape, r.shape, orth.shape)
-    print((np.abs(r) > 1e-5).astype(np.int))
-    m = gridSize // 2
-    print(orth[:3, m - 2 : m + 2, m - 2 : m + 2])
-    diag = np.diag(r)
-    roff = r - np.diag(diag)
-    print(np.amax(roff))
-    print(diag ** 2)
-    print(np.sum(Z ** 2, axis=(-1, -2)) - np.sum(orth ** 2, axis=(-2, -1)))
-    print(np.sum(q ** 2, axis=0))
-    # print(np.sum(roff**2,axis=0))
-    # print(np.sum(r**2,axis=1))
-    # print(np.sum(r**2,axis=0))
-
-
-test_vs_hardcoded()
-# test_ortho()
-# Z=ZernikeGrid(gridSize=100, maxRadial=5)

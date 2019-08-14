@@ -32,6 +32,7 @@ release = '0.5'
 # ones.
 extensions = [
     "sphinx.ext.napoleon",
+#    "sphinxcontrib.fulltoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
@@ -53,6 +54,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+html_theme_options = {
+    'github_user': 'dbuscher',
+    'github_repo': 'megascreen',
+    'show_related': True,
+    'show_relbars': True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

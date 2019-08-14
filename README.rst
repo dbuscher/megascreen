@@ -51,7 +51,7 @@ The main interface to the package is the MegaScreen function, which is a Python 
     for phaseScreen in MegaScreen.MegaScreen(numIter=10000):
 	process(phaseScreen)
 
-See the documentation for more detail.
+See the documentation at http://megascreen.readthedocs.io/ for more detail.
 
 Licencing
 ---------

@@ -1,6 +1,6 @@
-==========================
- Quick start instructions
-==========================
+=============
+ Quick start
+=============
 Installation
 ^^^^^^^^^^^^
 
@@ -16,7 +16,7 @@ Simple usage
 ^^^^^^^^^^^^
 
 
-The main interface to the package is the MegaScreen function, which is a Python generator. The following code will generate 10000 snapshots of "frozen turbulence" blowing past a single rectangular window, and process them using a user-defined function `process()`:
+The main interface to the package is the `MegaScreen` function, which is a Python generator: a function returning an iterator which can be used in a `for` loop. The following code will generate 10000 snapshots of "frozen turbulence" blowing past a single rectangular window, and process them using a user-defined function `process()`:
 
 .. code:: python
 
@@ -27,7 +27,7 @@ The main interface to the package is the MegaScreen function, which is a Python 
 
 
 
-More complex example code using this function is given in the `tests` directory on the `github site`_.
+Example code using the `MegaScreen` function (and other internal functions in the package) is available under the `tests` directory on the `github site`_.
 
 .. _`github site`: https://github.com/dbuscher/megascreen
 

@@ -215,7 +215,7 @@ def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
                frequencyOverlap=4.0, fractionalSupport=1.0,
                debug=False,numIter=None):
     """
-    Generate a sequence of phase screens for a Von Karman spectrum turbulent spectrum
+    Generate a sequence of phase screens with a Von Karman spectrum.
 
     Parameters
     ----------
@@ -227,42 +227,55 @@ def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
     windowShape : Tuple[int,int]
                   Shape of rectangular output window grid (same for all windows).
     dx : float
-         Increment in the "x" coordinate of the tweeter phase screen between subsequent calls. Represents the "frozen
-         turbulence" windspeed in tweeter pixels/iteration. Should be > 0. See note below about coordinate directions.
+         Increment in the "x" coordinate of the tweeter phase screen between 
+         subsequent calls. Represents the "frozen turbulence" windspeed in 
+         tweeter pixels/iteration. Should be > 0. See note below about coordinate 
+         directions.
     windowOrigins : Sequence[Tuple[float,float]]
-                    Relative coordinates of the rectangular windows in the window coordinate system - note that this coordinate system is scaled and rotated with respect to the to the coordinate system of the "woofer" and "tweeter" screens, and hence to the "wind" direction. All windows must fit into one "woofer" screen in the woofer screen "y" direction.
+                    Relative coordinates of the rectangular windows in the window 
+                    coordinate system - note that this coordinate system is scaled
+                    and rotated with respect to the to the coordinate system of 
+                    the "woofer" and "tweeter" screens, and hence to the "wind" direction.
     pixelSize : float
-                The size of the pixels in the output windows in terms of the pixel size of
+                Size of the pixels in the output windows in terms of the pixel size of
                 the tweeter screen (typically <= 1.0)
     theta: float
-           Angle of the output window "x" axis wrt the tweeter screen "x" axis. Used to simulate the 
-           wind travelling in a given direction with respect to the window coordinate axes. See note below about coordinate directions.
-    nfftWoofer, nfftTweeter: float
-                             Size of the square FFTs used to produce the woofer and tweeter
-                             screens.
+           Angle in radians between the output window "x" axis and the 
+           tweeter screen "x" axis. Used to simulate the wind travelling in a given 
+           direction with respect to the window coordinate axes. See note below about
+           the coordinate convention used.
+    nfftWoofer : float
+                 Size of the square FFT used to produce the woofer screen.
+    nfftTweeter : float
+                 Size of the square FFT used to produce the tweeter screen.
     frequencyOverlap : float
-                       The Nyquist frequency of the woofer spectrum in units of the fundamental
-                       frequency of the tweeter spectrum.
+                       The Nyquist frequency of the woofer spectrum in units of the 
+                       fundamental frequency of the tweeter spectrum.
     fractionalSupport : float
-                        Frequency above which woofer spectrum is zero (the "crossover frequency"), expressed as a fraction of the woofer 
-                        Nyquist frequency.
+                        Frequency above which woofer spectrum is zero (the "crossover
+                        frequency"), expressed as a fraction of the woofer Nyquist 
+                        frequency.
     debug : boolean
-            If true, yield additional debugging information along with phase screens
+            If true, yield additional debugging information along with phase screens.
     numIter : Optional[int]
-            Number of iterations to stop after, None means continue indefinitely.
+            Number of iterations to stop after, or None to yield an infinite but 
+            non-repeating sequence of phase screens.
 
     Yields
     ------
 
     screen  : numpy.ndarray[float]
-              Wavefront perturbation at each pixel in each of the output windows, in radians. If there
-              is only one window this is a 2-D array, otherwise an array of 2-D arrays (i.e. a 3-D array)
-              is returned.
+              Wavefront perturbation at each pixel in each of the output windows, in
+              radians. If there is only one window this is a 2-D array, otherwise 
+              an array of 2-D arrays (i.e. a 3-D array) is returned.
 
     Notes
     -----
-    The convention used in the above descriptions has the "x" coordinate corresponding to the leftmost
-    index of the 2-D phase screen arrays. This is a FORTRAN-like convention, and when the phase screen is plotted in `matplotlib.imshow()` and similar image plotting functions, this coordinate appears as the "y" coordinate in the image (albeit by default the "y" coordinate is plotted increasing downwards).
+    The convention used in the above descriptions has the "x" coordinate corresponding 
+    to the leftmost index of the 2-D phase screen arrays. This is a FORTRAN-like 
+    convention, and when the phase screen is plotted in `matplotlib.imshow()` and similar
+    image plotting functions, this coordinate appears as the "y" coordinate in the 
+    image (albeit by default the "y" coordinate is plotted increasing downwards).
     """
     spectrum = functools.partial(VonKarmanSpectrum, r0=r0, L0=L0)
     return NestedScreen(spectrum, windowShape, dx,

@@ -8,23 +8,30 @@ For simple applications, a single phase screen is sufficient. To add additional 
 The
 experimental evidence indicates that at least 3 different screens of approximately the same turbulent strength are needed to give the right level of decorrelation.
 
-Each layer should be generated from an independent `MegaScreen` generator. If the field of view being considered is small enough that anisoplanatism effects are
-negligible, then the phase screens so generated can simply be added together. If not, the phase screens need to be shifted with respect to one another by amounts dependending on the heights of the corresponding turbulent layers and the location within the field of view. Where scintillation effects are important, it may be necessary to simulate Fresnel propagation between different screens.
+Each layer should be generated using an independent `MegaScreen` generator. In most cases, the phase screens so generated can simply be added together to yield a summed phase screen.
 
-Each layer should have its own value for `theta`, `dx`, `r0` and possibly `L0`. The parameter `theta` sets the wind direction, where it should be noted that, as explained in the docstring, this is at 90 degrees to what might at first be expected, due to a FORTRAN-like convention for the array indexing. This should not usually be a problem, since what matters most is the difference in wind directions.
 
-To derive appropriate `r_0` values for the different layers, we need to consider the effect of multiple turbulent layers on the wavefront propagation. The
-variance of a given point on each phase screen is proportional to an integral of the turbulent strength
-:math:`C_n^2` over some (usually thin) turbulent layer. By summing together several
-statistically independent phase screens the variances add and so we get the
-integral over the whole optical path. The variance is  proportional to :math:`r_0^{-5/3}` so
-to get a given :math:`C_n^2` we set :math:`r_0` for each layer proportional to :math:`[\int  C_n^2 \,dz]^{-3/5}` for that layer. The effective  value of :math:`r_0` for the sum of all the screens is given by:
-
+Each layer should have a different value for `theta`, the wind direction, and can have different values for `dx`, `r0` and `L0` as appropriate to the atmospheric model being simulated.
+To derive appropriate :math:`r_0` values for the different layers, we need to consider the effect of multiple turbulent layers on the wavefront. The structure function of the wavefront perturbations depends on the integral of the turbulent strength
+:math:`C_n^2` over the propagation path as
+.. math::
+   D_\Phi(r) = \left [ 2.91 \, k^2 \,   \int_{\text{path}} C_n^2(z') \, dz' \right ]r^{5/3},
+where :math:`k=2\pi/\lambda` is the optical wavenumber of the radiation and it is assumed that :math:`r\llt L_0`. 
+Summing together the perturbations due to several
+statistically independent phase screens gives a wavefront perturbation whose structure function is the sum of the structure functions of the individual screens. This means we can break the integral into sub-integrals corresponding to traversal of each of the individual layers. 
+From the definition of :math:`r_0` we get 
+.. math::
+   r_0 = \left [ \frac{2.91}{6.88} \, k^2 \,   \int_{\text{path}} C_n^2(z') \, dz' \right ]^{-3/5}.
+Thus we set :math:`r_0` for each layer proportional to :math:`[\int  C_n^2 \,dz]^{-3/5}` for that layer, and
+the effective  value of :math:`r_0` for the sum of all the screens is given by:
 .. math::
 
    r_0 = \left[\sum_i (r_0)_i^{-5/3}\right]^{-3/5}
-
 where :math:`(r_0)_i` is the Fried parameter of the :math:`i^{\text{th}}` layer.
+
+If the field of view being considered is large, so that anisoplanatism effects are
+non-negligible, then the phase screens need to be shifted with respect to one another by different amounts for different  locations within the field of view. Additionally, in situations where the "near-field" approximation breaks down, i.e. when scintillation effects are important, it may be necessary to simulate Fresnel propagation between different layers.
+
 
 Using multiple windows
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -60,7 +67,7 @@ Outer scale and woofer screen size
 The value of the outer scale of the optical turbulence is set by the function parameter `L0`. The corresponding physical quantity :math:`L_0` is not well-constrained experimentally, but is thought to be in the range of order 10-100 meters for atmospheric conditions typical over astronomical observatories. The default value of `L0` is 7000, which is 1000 times as large as the default value for `r0`. In the infrared case corresponding to :math:`r_0=60` cm then the outer scale simulated is 600m, and so this is likely to give an over-estimate of the wavefront fluctuations on the largest physical scales. At optical wavelengths where the physical size of :math:`r_0` may be :math:`10\,\text{cm}`, then this set of parameter settings corresponds to an outer scale of 100m which is more realistic. 
 
 The size of a woofer "tile" is given by `nfftTweeter*nfftWoofer/(2*frequencyOverlap)` tweeter pixels. The default values of `nfftTweeter=256`, `nfftWoofer=256` and `frequencyOverlap=4`, gives woofer tiles which are  8192 tweeter pixels across.
-The value of `L0` can be perhaps 2-3 times larger than this value with relatively little loss in accuracy because of the way :math:`L_0` is defined in the Von Karman model: the spectrum of fluctuations flattens out for wavefront corrugations whose wavelength is larger than :math:`L_0/2\pi`.
+Values of `L0` up to this value will be modelled with reasonable accuracy because the spectrum of fluctuations flattens out at the lowest frequencies sampled by the woofer spectrum.
 
 The `MegaScreen()` function generates the woofer screen as a semi-infinite "strip" by splicing together woofer tiles. All the windows for a long-baseline interferometer must fit inside this "strip". If larger spacings than this are needed, the values of `nfftWoofer` and/or `nfftTweeter` can be increased.
 

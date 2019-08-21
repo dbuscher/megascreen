@@ -7,17 +7,21 @@ from numpy import sqrt, fft, random, pi
 import functools
 import scipy.interpolate
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 
 def FrequencyGrid(shape, pixelSize=1.0):
-    """Return a 2-d grid with absolute frequency relevant to an FFT of a grid of pixels of size pixelSize."""
-    return sqrt(np.add.outer(np.fft.fftfreq(shape[0], pixelSize) ** 2,
-                             np.fft.fftfreq(shape[1], pixelSize) ** 2,
-                             ))
+    """Return a 2-d grid with absolute frequency relevant to an FFT of a
+    grid of pixels of size pixelSize."""
+    return sqrt(
+        np.add.outer(
+            np.fft.fftfreq(shape[0], pixelSize) ** 2,
+            np.fft.fftfreq(shape[1], pixelSize) ** 2,
+        )
+    )
 
 
-def VonKarmanSpectrum(f, r0, L0=1e6, alpha=11. / 3.):
+def VonKarmanSpectrum(f, r0, L0=1e6, alpha=11.0 / 3.0):
     """Phase spectrum of atmospheric seeing with Von Karman turbulence"""
     return 0.0229 * r0 ** (2.0 - alpha) * (f ** 2 + 1 / L0 ** 2) ** (-alpha / 2)
 
@@ -27,9 +31,9 @@ def FftScreen(spectrum, shape, pixelSize=1.0):
 
     Parameters
     ----------
-    spectrum : function(f)
+    spectrum : Callable[[numpy.ndarray[float]],numpy.ndarray[float]]
        spectrum of fluctuations, assumed radially symmetric
-    shape: Sequence[int]
+    shape: Tuple[int,int]
         Size of output grid
     pixelSize: float
         Pixel size of output grid
@@ -49,7 +53,9 @@ def FftScreen(spectrum, shape, pixelSize=1.0):
 
 
 def McGlameryScreen(r0, L0=1e5, nfft=256):
-    return FftScreen(functools.partial(VonKarmanSpectrum, r0=r0, L0=L0), shape=(nfft, nfft))
+    return FftScreen(
+        functools.partial(VonKarmanSpectrum, r0=r0, L0=L0), shape=(nfft, nfft)
+    )
 
 
 def SplineTiles(tileGenerator):
@@ -58,11 +64,13 @@ def SplineTiles(tileGenerator):
     """
     previous = next(tileGenerator)
     n0 = previous.shape[0] // 2
-    assert (n0 * 2 == previous.shape[0])
+    assert n0 * 2 == previous.shape[0]
     cspline = np.cos(np.linspace(0, pi / 2, n0, endpoint=False))
     sspline = np.sin(np.linspace(0, pi / 2, n0, endpoint=False))
     for current in tileGenerator:
-        yield previous[n0:] * cspline[:, np.newaxis] + current[:n0] * sspline[:, np.newaxis]
+        yield previous[n0:] * cspline[:, np.newaxis] + current[:n0] * sspline[
+            :, np.newaxis
+        ]
         previous = current
 
 
@@ -117,14 +125,15 @@ def PixelCoords(origin, shape, pixelSize=1, theta=0):
     """
     c = np.cos(theta)
     s = np.sin(theta)
-    #print(origin, shape, pixelSize)
+    # print(origin, shape, pixelSize)
     x = (origin[0] + np.arange(shape[0])) * pixelSize
     y = (origin[1] + np.arange(shape[1])) * pixelSize
-    return np.add.outer(c * x, s * y).flatten(), \
-           np.add.outer(-s * x, c * y).flatten()
+    return np.add.outer(c * x, s * y).flatten(), np.add.outer(-s * x, c * y).flatten()
 
 
-def SlidingWindows(tileGenerator, shape, dx, origins=((0.0, 0.0),), pixelSize=1, theta=0.0):
+def SlidingWindows(
+    tileGenerator, shape, dx, origins=((0.0, 0.0),), pixelSize=1, theta=0.0
+):
     """Return phase values from a set of rectangular windows sliding along an infinite ribbon.
 
     Parameters
@@ -143,8 +152,10 @@ def SlidingWindows(tileGenerator, shape, dx, origins=((0.0, 0.0),), pixelSize=1,
          phase values at each pixel
      """
 
-    coords = [PixelCoords(origin=origin, shape=shape, pixelSize=pixelSize, theta=theta)
-              for origin in origins]
+    coords = [
+        PixelCoords(origin=origin, shape=shape, pixelSize=pixelSize, theta=theta)
+        for origin in origins
+    ]
     # print(coords)
     coords = np.array(coords)
     x = coords[:, 0, :].flat
@@ -164,7 +175,9 @@ def NestedSpectra(spectrum, f0, eps=1e-6):
 
     def OuterSpectrum(f):
         s = spectrum(f)
-        s1 = np.where(f < f0, c1 - 2 * grad * f0 / np.pi * np.cos(np.pi * f / (2 * f0)), s)
+        s1 = np.where(
+            f < f0, c1 - 2 * grad * f0 / np.pi * np.cos(np.pi * f / (2 * f0)), s
+        )
         return np.where(s1 < s, s1, s)
 
     def InnerSpectrum(f):
@@ -173,10 +186,20 @@ def NestedSpectra(spectrum, f0, eps=1e-6):
     return InnerSpectrum, OuterSpectrum
 
 
-def NestedScreen(spectrum, windowShape, dx,
-                 windowOrigins=((0.0, 0.0),), pixelSize=1.0, theta=0.0,
-                 nfftWoofer=256, nfftTweeter=256, frequencyOverlap=4.0, fractionalSupport=0.5,
-                 debug=False,numIter=None):
+def NestedScreen(
+    spectrum,
+    windowShape,
+    dx,
+    windowOrigins=((0.0, 0.0),),
+    pixelSize=1.0,
+    theta=0.0,
+    nfftWoofer=256,
+    nfftTweeter=256,
+    frequencyOverlap=4.0,
+    fractionalSupport=0.5,
+    debug=False,
+    numIter=None,
+):
     """Generate a sequence of phase screens for an arbitrary spectrum
 
     Parameters
@@ -190,17 +213,32 @@ def NestedScreen(spectrum, windowShape, dx,
     wooferPixelSize = nfftTweeter / (2 * frequencyOverlap)
     f0 = 1 / (2 * wooferPixelSize) * fractionalSupport
     wooferSpectrum, tweeterSpectrum = NestedSpectra(spectrum, f0)
-    innerWindows = SlidingWindows(SplineTiles(FftScreen(wooferSpectrum, (nfftWoofer, nfftWoofer), wooferPixelSize)),
-                                  dx=dx / wooferPixelSize,
-                                  shape=windowShape, origins=windowOrigins,
-                                  pixelSize=pixelSize / wooferPixelSize, theta=theta)
-    outerWindows = [SlidingWindows(SplineTiles(FftScreen(tweeterSpectrum, (nfftTweeter, nfftTweeter), pixelSize)), dx=dx,
-                                   shape=windowShape, origins=[origin],
-                                   pixelSize=pixelSize, theta=theta)
-                    for origin in windowOrigins]
-    iter=0
+    innerWindows = SlidingWindows(
+        SplineTiles(
+            FftScreen(wooferSpectrum, (nfftWoofer, nfftWoofer), wooferPixelSize)
+        ),
+        dx=dx / wooferPixelSize,
+        shape=windowShape,
+        origins=windowOrigins,
+        pixelSize=pixelSize / wooferPixelSize,
+        theta=theta,
+    )
+    outerWindows = [
+        SlidingWindows(
+            SplineTiles(
+                FftScreen(tweeterSpectrum, (nfftTweeter, nfftTweeter), pixelSize)
+            ),
+            dx=dx,
+            shape=windowShape,
+            origins=[origin],
+            pixelSize=pixelSize,
+            theta=theta,
+        )
+        for origin in windowOrigins
+    ]
+    iter = 0
     while numIter is None or iter < numIter:
-        iter+=1
+        iter += 1
         inner = next(innerWindows)
         outer = np.squeeze(np.array([next(o) for o in outerWindows]))
         if debug:
@@ -209,11 +247,21 @@ def NestedScreen(spectrum, windowShape, dx,
             yield inner + outer
 
 
-def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
-               windowOrigins=((0.0, 0.0),), pixelSize=1.0, theta=0.0,
-               nfftWoofer=256, nfftTweeter=256,
-               frequencyOverlap=4.0, fractionalSupport=1.0,
-               debug=False,numIter=None):
+def MegaScreen(
+    r0=7.0,
+    L0=7000.0,
+    windowShape=[(100, 100)],
+    dx=3.5,
+    windowOrigins=((0.0, 0.0),),
+    pixelSize=1.0,
+    theta=0.0,
+    nfftWoofer=256,
+    nfftTweeter=256,
+    frequencyOverlap=4.0,
+    fractionalSupport=1.0,
+    debug=False,
+    numIter=None,
+):
     """
     Generate a sequence of phase screens with a Von Karman spectrum.
 
@@ -237,16 +285,16 @@ def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
                     and rotated with respect to the to the coordinate system of 
                     the "woofer" and "tweeter" screens, and hence to the "wind" direction.
     pixelSize : float
-                Size of the pixels in the output windows in terms of the pixel size of
-                the tweeter screen (typically <= 1.0)
+                Size of the window pixels in tweeter pixel units 
+                (typically <= 1.0).
     theta: float
            Angle in radians between the output window "x" axis and the 
            tweeter screen "x" axis. Used to simulate the wind travelling in a given 
            direction with respect to the window coordinate axes. See note below about
            the coordinate convention used.
-    nfftWoofer : float
+    nfftWoofer : int
                  Size of the square FFT used to produce the woofer screen.
-    nfftTweeter : float
+    nfftTweeter : int
                  Size of the square FFT used to produce the tweeter screen.
     frequencyOverlap : float
                        The Nyquist frequency of the woofer spectrum in units of the 
@@ -258,7 +306,7 @@ def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
     debug : boolean
             If true, yield additional debugging information along with phase screens.
     numIter : Optional[int]
-            Number of iterations to stop after, or None to yield an infinite but 
+            Number of iterations to stop after, or None to return an infinite,
             non-repeating sequence of phase screens.
 
     Yields
@@ -278,8 +326,17 @@ def MegaScreen(r0=7.0, L0=7000.0, windowShape=[(100,100)], dx=3.5,
     image (albeit by default the "y" coordinate is plotted increasing downwards).
     """
     spectrum = functools.partial(VonKarmanSpectrum, r0=r0, L0=L0)
-    return NestedScreen(spectrum, windowShape, dx,
-                        windowOrigins=windowOrigins, pixelSize=pixelSize, theta=theta,
-                        nfftWoofer=nfftWoofer, nfftTweeter=nfftTweeter,
-                        frequencyOverlap=frequencyOverlap, fractionalSupport=fractionalSupport,
-                        debug=debug,numIter=numIter)
+    return NestedScreen(
+        spectrum,
+        windowShape,
+        dx,
+        windowOrigins=windowOrigins,
+        pixelSize=pixelSize,
+        theta=theta,
+        nfftWoofer=nfftWoofer,
+        nfftTweeter=nfftTweeter,
+        frequencyOverlap=frequencyOverlap,
+        fractionalSupport=fractionalSupport,
+        debug=debug,
+        numIter=numIter,
+    )

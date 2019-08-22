@@ -1,0 +1,6 @@
+0.5.0:
+------
+- Added a numIter parameter to MegaScreen() to allow straightforward use in for loops
+- All parameters to MegaScreen() now have default values to ease adoption
+- Tidied up test code
+- Added extensive documentation on http://megascreen.readthedocs.io

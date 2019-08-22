@@ -14,19 +14,27 @@ Each layer should be generated using an independent `MegaScreen` generator. In m
 Each layer should have a different value for `theta`, the wind direction, and can have different values for `dx`, `r0` and `L0` as appropriate to the atmospheric model being simulated.
 To derive appropriate :math:`r_0` values for the different layers, we need to consider the effect of multiple turbulent layers on the wavefront. The structure function of the wavefront perturbations depends on the integral of the turbulent strength
 :math:`C_n^2` over the propagation path as
+
 .. math::
+
    D_\Phi(r) = \left [ 2.91 \, k^2 \,   \int_{\text{path}} C_n^2(z') \, dz' \right ]r^{5/3},
-where :math:`k=2\pi/\lambda` is the optical wavenumber of the radiation and it is assumed that :math:`r\llt L_0`. 
+
+where :math:`k=2\pi/\lambda` is the optical wavenumber of the radiation and it is assumed that :math:`r\ll L_0`. 
 Summing together the perturbations due to several
 statistically independent phase screens gives a wavefront perturbation whose structure function is the sum of the structure functions of the individual screens. This means we can break the integral into sub-integrals corresponding to traversal of each of the individual layers. 
 From the definition of :math:`r_0` we get 
+
 .. math::
+
    r_0 = \left [ \frac{2.91}{6.88} \, k^2 \,   \int_{\text{path}} C_n^2(z') \, dz' \right ]^{-3/5}.
+
 Thus we set :math:`r_0` for each layer proportional to :math:`[\int  C_n^2 \,dz]^{-3/5}` for that layer, and
 the effective  value of :math:`r_0` for the sum of all the screens is given by:
+
 .. math::
 
    r_0 = \left[\sum_i (r_0)_i^{-5/3}\right]^{-3/5}
+
 where :math:`(r_0)_i` is the Fried parameter of the :math:`i^{\text{th}}` layer.
 
 If the field of view being considered is large, so that anisoplanatism effects are

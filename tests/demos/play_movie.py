@@ -1,49 +1,34 @@
+#!/usr/bin/env python3
 # Make movie of phase screen
-
-import matplotlib
-matplotlib.use('TkAgg')
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import sys
-import MegaScreen
-import functools
+from MegaScreen import MegaScreen
+from matplotlib.animation import FuncAnimation
 
 
-def test1(diameter=128, screenSize=256, numIter=100, dx=3.3, dy=10):
-    tileGenerator=MegaScreen.SplineTiles(MegaScreen.McGlameryScreen(r0=10, L0=100,
-                                                                    nfft=256))
-    screenGenerator=MegaScreen.SlidingWindows(tileGenerator,(diameter,diameter),dx=3.3,theta=np.pi/3)
-    ScreenMovie(screenGenerator)
+def screen_movie(r0=10, L0=1000, diameter=200, dx=3.5, theta=np.pi / 3, num_sigma=2):
+    limit = num_sigma * np.sqrt(0.0863) * (L0 / r0) ** (5 / 6)
+    im = plt.imshow(
+        np.zeros((diameter, diameter)),
+        cmap=plt.cm.gray,
+        interpolation="none",
+        animated=True,
+        vmin=-limit,
+        vmax=limit,
+    )
+    yield im,  # Dummy first frame to draw axes etc
+    for screen in MegaScreen(
+        r0=r0, L0=L0, windowShape=(diameter, diameter), dx=dx, theta=theta
+    ):
+        im.set_data(screen)
+        yield im,
 
-def test(r0=10,L0=1e4,diameter=128,dx=3.3):
-    generator=MegaScreen.MegaScreen(r0,L0,windowShape=[diameter,diameter],dx=dx,theta=np.pi/3)
-    ScreenMovie(generator)
 
-def test3(r0=10,L0=1e4,diameter=128,dx=3.3):
-    ScreenMovie(SingleGenerator(r0,L0,diameter,dx,which=0))
-
-def SingleGenerator(r0,L0,diameter,dx,which=0):
-    for screens in MegaScreen.MegaScreen(r0,L0,windowShape=[diameter,diameter],dx=dx,debug=True):
-        yield screens[which]
-
-def ScreenMovie(screenGenerator):
+if __name__ == "__main__":
     fig = plt.figure()
-    screen = next(screenGenerator)
-    im = plt.imshow(screen, cmap=plt.cm.gray,interpolation='none',animated=True)
-    ani = animation.FuncAnimation(fig, updatefig, interval=50, blit=True, fargs=(im,screenGenerator))
+    anim = FuncAnimation(
+        fig, lambda x: x, frames=screen_movie(), interval=30, blit=True
+    )
     plt.show()
-
-def updatefig(i,im,screenGenerator):
-    screen=next(screenGenerator)
-    im.set_data(screen)
-    im.autoscale()
-    return im,
-
-
-# Generic command-line interface to run test script or give full control
-if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        test()
-    else:
-        exec(sys.argv[1])

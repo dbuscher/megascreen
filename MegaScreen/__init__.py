@@ -7,7 +7,7 @@ from numpy import sqrt, fft, random, pi
 import functools
 import scipy.interpolate
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 def FrequencyGrid(shape, pixelSize=1.0):
@@ -250,7 +250,7 @@ def NestedScreen(
 def MegaScreen(
     r0=7.0,
     L0=7000.0,
-    windowShape=[(100, 100)],
+    windowShape=(100, 100),
     dx=3.5,
     windowOrigins=((0.0, 0.0),),
     pixelSize=1.0,

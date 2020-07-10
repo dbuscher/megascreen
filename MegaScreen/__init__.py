@@ -7,7 +7,7 @@ from numpy import sqrt, fft, random, pi
 import functools
 import scipy.interpolate
 
-__version__ = "1.0.0"
+__version__ = "1.0"
 
 
 def FrequencyGrid(shape, pixelSize=1.0):

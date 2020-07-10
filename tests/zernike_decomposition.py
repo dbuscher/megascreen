@@ -5,8 +5,8 @@
 #     text_representation:
 #       extension: .py
 #       format_name: percent
-#       format_version: '1.2'
-#       jupytext_version: 1.1.6
+#       format_version: '1.3'
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -21,7 +21,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import MegaScreen
-from zernike import ZernikeGrid, jtonm
+from Zernike import ZernikeGrid, jtonm
 from theory import winker_variance_quad, winker_piston_residual
 
 # %%
@@ -60,8 +60,8 @@ def residual_variance(screen, zernike):
 
 # %%
 # Run the simulation - may take a few minutes
-diameter = 100
-L0s, variances = simulate_winker_fig2(diameter=diameter, numIter=1000)
+diameter = 200
+L0s, variances = simulate_winker_fig2(diameter=diameter, numIter=100, numL0=5)
 
 
 # %%
@@ -91,5 +91,7 @@ plt.ylabel("$Z_j$")
 plt.title("Simulation of Winker Fig 2")
 plot_theory()
 plot_simulation(L0s, variances, diameter)
+
+# %%
 
 # %%

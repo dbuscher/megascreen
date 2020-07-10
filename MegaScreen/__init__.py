@@ -7,7 +7,7 @@ from numpy import sqrt, fft, random, pi
 import functools
 import scipy.interpolate
 
-__version__ = "0.5.1"
+__version__ = "1.0.0"
 
 
 def FrequencyGrid(shape, pixelSize=1.0):
@@ -82,39 +82,46 @@ def GridInterpolator(grid):
 
 
 def SlidingPixels(tileGenerator, x, y, dx):
-    """Return phase values from a set of pixel coordinates sliding along an infinite ribbon.
+    """
+    Return phase values from a set of pixel coordinates sliding along an infinite ribbon.
 
     Parameters
     ----------
     tileGenerator: iterator
-        A sequence of 2D phase screens which are stiched together to form a ribbon
+        sequence of 2D phase screens which are stiched together to form the ribbon
     x,y: 1D arrays
-        starting pixel coordinates in units of the tile grid size
+        relative pixel coordinates in units of the tile grid size
     dx: float
         increment of pixel "x" coordinate on each iteration
+
     Yields
     -------
     1D array
-        phase values at each pixel
+        phase values at each pixel for this iteration
     """
+    # Shift the x and y coordinates so that the minimum coordinate is zero
+    x_zeroed = x - np.amin(x)
+    y_zeroed = y - np.amin(y)
+    xmax = np.amax(x_zeroed)
+    ymax = np.amax(y_zeroed)
     tiles = [next(tileGenerator)]
-    xtile = tiles[0].shape[0]
-    assert xtile >= dx
-    xmin = np.amin(x)
-    xmax = np.amax(x)
-    numTile = int(np.ceil((xmax - xmin + dx) / xtile))
-    for i in range(numTile):
+    xtile, ytile = tiles[0].shape
+    assert ymax <= ytile  # No limit on xmax, except memory to hold ribbon
+    # Fill up initial ribbon
+    for i in range(int(np.ceil(xmax / xtile))):
         tiles.append(next(tileGenerator))
-    interpolator = GridInterpolator(np.concatenate(tiles))
-    xoffset = -xmin
-    ynew = y - np.amin(y)
+    re_interpolate = True
+    xoffset = 0
     while True:
-        yield interpolator(x + xoffset, ynew, grid=False)
+        if re_interpolate:
+            interpolator = GridInterpolator(np.concatenate(tiles))
+            re_interpolate = False
+        yield interpolator(x_zeroed + xoffset, y_zeroed, grid=False)
         xoffset += dx
-        if xoffset + xmin > xtile:
+        while xoffset > xtile:
             tiles.pop(0)
             tiles.append(next(tileGenerator))
-            interpolator = GridInterpolator(np.concatenate(tiles))
+            re_interpolate = True
             xoffset -= xtile
 
 

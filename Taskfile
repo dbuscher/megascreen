@@ -1,0 +1,27 @@
+#!/bin/bash
+
+function upload {
+    twine check dist/*
+    twine upload dist/*
+}
+
+function build {
+    python3 setup.py sdist
+}
+
+function clean {
+    rm -rf dist *.egg-info
+}
+
+function default {
+    help
+}
+
+function help {
+    echo "$0 <task> <args>"
+    echo "Tasks:"
+    compgen -A function | cat -n
+}
+
+TIMEFORMAT="Task completed in %3lR"
+time ${@:-default}

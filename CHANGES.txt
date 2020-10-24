@@ -1,3 +1,14 @@
+1.0.1
+-----
+- Updated demos so they don't crash with recent assert
+- Demos can run without installing MegaScreen
+- Streamlit demo app can run on Streamlit Share
+
+1.0.0
+-----
+- Added an assert to check that the size of a window does not exceed the size of a tweeter screen
+- Removed restriction on dx and increased memory efficiency by allocating the minimum number of tiles needed
+
 0.5.0:
 ------
 - Added a numIter parameter to MegaScreen() to allow straightforward use in for loops

@@ -8,7 +8,9 @@ from MegaScreen import MegaScreen
 from matplotlib.animation import FuncAnimation
 
 
-def screen_movie(r0=10, L0=1000, diameter=200, dx=3.5, theta=np.pi / 3, num_sigma=2):
+def screen_movie(
+    r0=10, L0=1000, diameter=200, dx=3.5, theta=np.radians(20.0), num_sigma=2
+):
     limit = num_sigma * np.sqrt(0.0863) * (L0 / r0) ** (5 / 6)
     im = plt.imshow(
         np.zeros((diameter, diameter)),

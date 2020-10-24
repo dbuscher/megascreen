@@ -1,3 +1,4 @@
+import context
 import numpy as np
 import streamlit as st
 from MegaScreen import MegaScreen
@@ -63,10 +64,8 @@ def main():
         image = speckle_image(screen, mask)
         offset = (image.shape[0] - windowSize) // 2
         image = image[offset : offset + windowSize, offset : offset + windowSize]
-        screen_im.image(
-            np.where(mask, autoscale(screen), 0.5), width=width, format="png"
-        )
-        speckle_im.image(autoscale(image), width=width, format="png")
+        screen_im.image(np.where(mask, autoscale(screen), 0.5), width=width)
+        speckle_im.image(autoscale(image), width=width)
         time.sleep(sleep / 1000)
 
     # We clear elements by calling empty on them.

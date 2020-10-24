@@ -37,8 +37,8 @@ def main():
     r0 = diameter / Dr0
     width = diameter * st.sidebar.slider("Display zoom", 1, 10, 4, 1)
     windowSize = st.sidebar.slider("Speckle window (pixels)", 10, 400, 200, 10)
-    sleep = st.sidebar.slider("Sleep (milliseconds)", 0.0, 1000.0, 100.0, 1.0)
-    theta = st.sidebar.slider("Theta", 0, 360, 30, 10)
+    sleep = st.sidebar.slider("Sleep (milliseconds)", 0.0, 1000.0, 200.0, 1.0)
+    theta = st.sidebar.slider("Wind direction (degrees from South)", 0, 360, 30, 10)
 
     # Non-interactive elements return a placeholder to their location
     # in the app. Here we're storing progress_bar to update it later.
@@ -47,8 +47,16 @@ def main():
     # These two elements will be filled in later, so we create a placeholder
     # for them using st.empty()
     frame_text = st.sidebar.empty()
+    st.title("MegaScreen demo app")
     screen_im = st.empty()
     speckle_im = st.empty()
+    st.markdown(
+        """
+  The upper frame shows the simulated phase screen and the lower frame the resulting speckle pattern. Change the simulation parameters in the sidebar on the left.
+
+  The frame rate of this movie is limited to about 5Hz (i.e. you need to set sleep >200ms) when running over the web: frames can be played at > 30Hz on a local machine
+"""
+    )
     frame_num = 0
     mask = circular_mask(diameter)
     for screen in MegaScreen(

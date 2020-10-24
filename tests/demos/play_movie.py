@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Make movie of phase screen
+# Make movie of phase screen and show in a local window
+import context
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt

@@ -1,3 +1,4 @@
+# A streamlit app to display a phase screen and the associated speckle pattern
 import context
 import numpy as np
 import streamlit as st
@@ -52,9 +53,11 @@ def main():
     speckle_im = st.empty()
     st.markdown(
         """
-  The upper frame shows the simulated phase screen and the lower frame the resulting speckle pattern. Change the simulation parameters in the sidebar on the left.
+  The upper frame shows an infinite phase screen blowing across a telescope aperture and the lower frame the resulting speckle pattern seen in the telescope focal plane when observing an unresolved target. You can change the simulation parameters in the sidebar on the left and the simulation will restart immediately with the new parameters.
 
-  The frame rate of this movie is limited to about 5Hz (i.e. you need to set sleep >200ms) when running over the web: frames can be played at > 30Hz on a local machine
+  The frame rate of this movie is limited to about 5Hz (i.e. you need to set sleep >200ms) when running over the web: frames can be played at > 30Hz on a local machine.
+
+Find out more at the [github respository](https://github.com/dbuscher/megascreen)
 """
     )
     frame_num = 0

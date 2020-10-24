@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # Display an endless movie of the evolution of a simulated speckle pattern
+# If run with a commandline argument giving filename, saves a movie in the format
+# implied by the file extension.
+import context
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -54,7 +57,7 @@ if __name__ == "__main__":
             save_count=2000,
         )
         writervideo = matplotlib.animation.FFMpegWriter(fps=25)
-        anim.save("speckle.mp4", writer=writervideo)
+        anim.save(sys.argv[1], writer=writervideo)
     else:
         fig = plt.figure()
         anim = FuncAnimation(
